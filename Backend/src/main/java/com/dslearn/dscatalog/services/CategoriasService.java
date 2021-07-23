@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.dslearn.dscatalog.dto.CategoriaDTO;
 import com.dslearn.dscatalog.models.Categoria;
 import com.dslearn.dscatalog.repositories.CategoriaRepository;
+import com.dslearn.dscatalog.services.exceptions.EntityNotfoundException;
 
 @Service
 public class CategoriasService {
@@ -32,10 +33,11 @@ public class CategoriasService {
 	
 	public CategoriaDTO findById(Long id) {
 		Optional<Categoria> optional = repository.findById(id);
-		Categoria categoria = optional.get();
+		Categoria categoria = optional.orElseThrow( 
+				() -> new EntityNotfoundException("Categoria não encontrada") 
+		);
 		return new CategoriaDTO(categoria);
 	}
-
 
 	@Transactional
 	public Categoria save(@RequestBody Categoria categoria) {
