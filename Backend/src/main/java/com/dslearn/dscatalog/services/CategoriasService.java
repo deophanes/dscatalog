@@ -1,6 +1,7 @@
 package com.dslearn.dscatalog.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -28,6 +29,13 @@ public class CategoriasService {
 		 * listDTO.add(new CategoriaDTO(cat)); }
 		 */
 	}
+	
+	public CategoriaDTO findById(Long id) {
+		Optional<Categoria> optional = repository.findById(id);
+		Categoria categoria = optional.get();
+		return new CategoriaDTO(categoria);
+	}
+
 
 	@Transactional
 	public Categoria save(@RequestBody Categoria categoria) {
