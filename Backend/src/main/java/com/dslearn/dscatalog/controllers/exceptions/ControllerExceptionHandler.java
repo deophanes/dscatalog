@@ -9,24 +9,42 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.dslearn.dscatalog.services.exceptions.EntityNotfoundException;
+import com.dslearn.dscatalog.services.exceptions.DatabaseException;
+import com.dslearn.dscatalog.services.exceptions.ServiceNotfoundException;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
-	@ExceptionHandler(EntityNotfoundException.class)
-	public ResponseEntity<StandardError> entityNotFound( EntityNotfoundException e, HttpServletRequest request ) {
-		
+	@ExceptionHandler(ServiceNotfoundException.class)
+	public ResponseEntity<StandardError> entityNotFound(ServiceNotfoundException e, HttpServletRequest request) {
+
+		HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+
 		StandardError error = new StandardError();
-		
 		error.setTimestamp(Instant.now());
-		error.setStatus(HttpStatus.NOT_FOUND.value());
+		error.setStatus(httpStatus.value());
 		error.setError("Recurso não Encontrado");
 		error.setMessage(e.getMessage());
 		error.setPath(request.getRequestURI());
-		
-		return ResponseEntity.status( HttpStatus.NOT_FOUND).body(error);
-		
+
+		return ResponseEntity.status(httpStatus).body(error);
+
 	}
-	
+
+	@ExceptionHandler(DatabaseException.class)
+	public ResponseEntity<StandardError> database(DatabaseException e, HttpServletRequest request) {
+
+		HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+		StandardError error = new StandardError();
+		error.setTimestamp(Instant.now());
+		error.setStatus(httpStatus.value());
+		error.setError("Database Exception");
+		error.setMessage(e.getMessage());
+		error.setPath(request.getRequestURI());
+
+		return ResponseEntity.status(httpStatus).body(error);
+
+	}
+
 }
