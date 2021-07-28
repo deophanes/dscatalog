@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +12,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dslearn.dscatalog.dto.CategoriaDTO;
 import com.dslearn.dscatalog.models.Categoria;
@@ -62,13 +62,13 @@ public class CategoriasService {
 			Categoria categoria = repository.getOne(id);
 			categoria.setNome(categoriaDTO.getNome());
 			categoria = repository.save(categoria);
+			return new CategoriaDTO(categoria);
 		} catch (EntityNotFoundException e) {
 			throw new ServiceNotfoundException("código não Encontrado: " + id);
 		}
-		return null;
-
 	}
 
+	@Transactional
 	public void delete(Long id) {
 		try {
 			repository.deleteById(id);

@@ -10,8 +10,10 @@ import com.dslearn.dscatalog.models.Categoria;
 import com.dslearn.dscatalog.models.Produto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class ProdutoDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -21,7 +23,6 @@ public class ProdutoDTO implements Serializable {
 	private Double preco;
 	private String imgUrl;
 	private Instant data;
-	
 	private List<CategoriaDTO> categoriaDTOs = new ArrayList<>();
 	
 	public ProdutoDTO(Produto produto) {
@@ -37,5 +38,5 @@ public class ProdutoDTO implements Serializable {
 		this(produto);
 		categorias.forEach(cat -> this.categoriaDTOs.add(new CategoriaDTO(cat)));
 	}
-	
+
 }
