@@ -48,7 +48,8 @@ public class ClientService {
 	public ClientDTO update(Long id, ClientDTO clientDTO) {
 		try {
 			Client client = repository.getOne(id);
-			BeanUtils.copyProperties(clientDTO, client);
+			//BeanUtils.copyProperties(clientDTO, client);
+			copyDtoToEntity(clientDTO, client);
 			client = repository.save(client);
 			return new ClientDTO(client);
 		} catch (EntityNotFoundException e) {
@@ -65,4 +66,11 @@ public class ClientService {
 		}
 	}
 
+	private void copyDtoToEntity(ClientDTO dto, Client client) {
+		client.setName(dto.getName());
+		client.setCpf(dto.getCpf());
+		client.setIncome(dto.getIncome());
+		client.setBirthDate(dto.getBirthDate());
+		client.setChildren(dto.getChildren());
+	}
 }
