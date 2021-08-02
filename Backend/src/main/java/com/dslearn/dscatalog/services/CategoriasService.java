@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +36,8 @@ public class CategoriasService {
 		 */
 	}
 
-	public Page<CategoriaDTO> findAllPaged(PageRequest pageRequest) {
-		Page<Categoria> list = repository.findAll(pageRequest);
+	public Page<CategoriaDTO> findAllPaged(Pageable pageable) {
+		Page<Categoria> list = repository.findAll(pageable);
 		return list.map(x -> new CategoriaDTO(x));
 	}
 

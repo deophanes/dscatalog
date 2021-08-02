@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.dslearn.dscatalog.dto.CategoriaDTO;
@@ -38,8 +38,8 @@ public class ProdutoService {
 		return list.stream().map(x -> new ProdutoDTO(x)).collect(Collectors.toList());
 	}
 
-	public Page<ProdutoDTO> findAllPaged(PageRequest pageRequest) {
-		Page<Produto> list = repository.findAll(pageRequest);
+	public Page<ProdutoDTO> findAllPaged(Pageable pageable) {
+		Page<Produto> list = repository.findAll(pageable);
 		return list.map(x -> new ProdutoDTO(x));
 	}
 
