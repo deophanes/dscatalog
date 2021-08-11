@@ -15,10 +15,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Produto implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -38,5 +42,6 @@ public class Produto implements Serializable {
 	@JoinTable(	name = "Produto_Categoria", 
 				joinColumns = @JoinColumn(name = "produto_id"), 
 				inverseJoinColumns = @JoinColumn(name = "categoria_id"))
+
 	Set<Categoria> categorias = new HashSet<>();
 }

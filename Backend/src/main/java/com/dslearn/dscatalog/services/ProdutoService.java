@@ -15,11 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.dslearn.dscatalog.dto.CategoriaDTO;
 import com.dslearn.dscatalog.dto.ProdutoDTO;
-import com.dslearn.dscatalog.models.Categoria;
 import com.dslearn.dscatalog.models.Produto;
-import com.dslearn.dscatalog.repositories.CategoriaRepository;
 import com.dslearn.dscatalog.repositories.ProdutoRepository;
 import com.dslearn.dscatalog.services.exceptions.DatabaseException;
 import com.dslearn.dscatalog.services.exceptions.ServiceNotfoundException;
@@ -29,9 +26,6 @@ public class ProdutoService {
 
 	@Autowired
 	private ProdutoRepository repository;
-
-	@Autowired
-	private CategoriaRepository categoriaRepository;
 
 	public List<ProdutoDTO> findAll() {
 		List<Produto> list = repository.findAll();
@@ -45,14 +39,14 @@ public class ProdutoService {
 
 	public ProdutoDTO findById(Long id) {
 		Optional<Produto> optional = repository.findById(id);
-		Produto produto = optional.orElseThrow(() -> new ServiceNotfoundException("Produto não encontrada"));
+		Produto produto = optional.orElseThrow(() -> new ServiceNotfoundException("Id not found"));
 		return new ProdutoDTO(produto, produto.getCategorias());
 	}
 
 	@Transactional
 	public ProdutoDTO insert(ProdutoDTO produtoDTO) {
 		Produto produto = new Produto();
-		copyToProperties(produtoDTO, produto);	
+		BeanUtils.copyProperties(produtoDTO, produto);	
 		produto = repository.save(produto);
 		return new ProdutoDTO(produto);
 	}
@@ -65,7 +59,7 @@ public class ProdutoService {
 			produto = repository.save(produto);
 			return new ProdutoDTO(produto);
 		} catch (EntityNotFoundException e) {
-			throw new ServiceNotfoundException("código não Encontrado: " + id);
+			throw new ServiceNotfoundException("Id not found: " + id);
 		}
 	}
 
@@ -74,13 +68,13 @@ public class ProdutoService {
 		try {
 			repository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
-			throw new ServiceNotfoundException("Código não Encontrado: " + id);
+			throw new ServiceNotfoundException("Id not found: " + id);
 		} catch (DataIntegrityViolationException e) {
-			throw new DatabaseException("Violação de Integridade");
+			throw new DatabaseException("Integrity violation");
 		}
 	}
 
-	private void copyToProperties(ProdutoDTO dto, Produto produto) {
+	/*private void copyToProperties(ProdutoDTO dto, Produto produto) {
 		produto.setNome(dto.getNome());
 		produto.setDescricao(dto.getDescricao());
 		produto.setPreco(dto.getPreco());
@@ -92,6 +86,6 @@ public class ProdutoService {
 			Categoria categoria = categoriaRepository.getOne(catDTO.getId());
 			produto.getCategorias().add(categoria);
 		}
-	}
+	}*/
 
 }
