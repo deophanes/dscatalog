@@ -59,7 +59,7 @@ public class CategoriasService {
 	@Transactional
 	public CategoriaDTO update(Long id, CategoriaDTO categoriaDTO) {
 		try {
-			Categoria categoria = repository.getOne(id);
+			Categoria categoria = repository.getById(id);
 			categoria.setNome(categoriaDTO.getNome());
 			categoria = repository.save(categoria);
 			return new CategoriaDTO(categoria);

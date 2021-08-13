@@ -54,7 +54,7 @@ public class ProdutoService {
 	@Transactional
 	public ProdutoDTO update(Long id, ProdutoDTO produtoDTO) {
 		try {
-			Produto produto = repository.getOne(id);
+			Produto produto = repository.getById(id);
 			BeanUtils.copyProperties(produtoDTO, produto);	
 			produto = repository.save(produto);
 			return new ProdutoDTO(produto);

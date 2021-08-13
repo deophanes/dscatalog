@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import com.dslearn.dscatalog.dto.ProdutoDTO;
 import com.dslearn.dscatalog.services.ProdutoService;
@@ -33,15 +35,17 @@ public class ProductControllerTest {
 	
 	@BeforeEach
 	void setUp() throws Exception {
-	
 		produtoDTO = Factory.createProductDTO();
 		page = new PageImpl<>(List.of(produtoDTO));
 		when(service.findAllPaged(any())).thenReturn(page);
 	}
 	
 	@Test
-	private void findAllshouldReturnPage() throws Exception {
-		mockMvc.perform(get("/produtos")).andExpect(status().isOk());
+	private void findAllShouldReturnPage() throws Exception {
+		
+		ResultActions actions = mockMvc.perform(get("/produtos")
+				.accept(MediaType.APPLICATION_JSON));
+		actions.andExpect(status().isOk());
 	}
 	
 	
