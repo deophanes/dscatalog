@@ -3,9 +3,9 @@ package com.dslearn.dscatalog.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.dslearn.dscatalog.models.Produto;
+import com.dslearn.dscatalog.models.Product;
 
 @Repository
-public interface ProdutoRepository extends JpaRepository<Produto, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
 
 }

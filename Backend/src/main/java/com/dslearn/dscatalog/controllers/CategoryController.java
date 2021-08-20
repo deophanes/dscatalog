@@ -16,39 +16,39 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.dslearn.dscatalog.dto.CategoriaDTO;
-import com.dslearn.dscatalog.services.CategoriasService;
+import com.dslearn.dscatalog.dto.CategoryDTO;
+import com.dslearn.dscatalog.services.CategoryService;
 
 @RestController
 @RequestMapping("/categorias")
 public class CategoryController {
 
 	@Autowired
-	private CategoriasService service;
+	private CategoryService service;
 
 	@GetMapping
-	public ResponseEntity<Page<CategoriaDTO>> findAll(Pageable pageable) {
-		Page<CategoriaDTO> lista = service.findAllPaged(pageable);
+	public ResponseEntity<Page<CategoryDTO>> findAll(Pageable pageable) {
+		Page<CategoryDTO> lista = service.findAllPaged(pageable);
 		return ResponseEntity.ok().body(lista);
 	}
 
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<CategoriaDTO> findById(@PathVariable Long id) {
-		CategoriaDTO dto = service.findById(id);
+	public ResponseEntity<CategoryDTO> findById(@PathVariable Long id) {
+		CategoryDTO dto = service.findById(id);
 		return ResponseEntity.ok().body(dto);
 	}
 
 	@PostMapping
-	public ResponseEntity<CategoriaDTO> insert(@RequestBody CategoriaDTO categoriaDTO) {
-		var dto = service.insert(categoriaDTO);
+	public ResponseEntity<CategoryDTO> insert(@RequestBody CategoryDTO categoryDTO) {
+		var dto = service.insert(categoryDTO);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
 		return ResponseEntity.created(uri).body(dto);
 	}
 
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<CategoriaDTO> update(@PathVariable Long id, @RequestBody CategoriaDTO categoriaDTO) {
-		categoriaDTO = service.update(id, categoriaDTO);
-		return ResponseEntity.ok().body(categoriaDTO);
+	public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) {
+		categoryDTO = service.update(id, categoryDTO);
+		return ResponseEntity.ok().body(categoryDTO);
 	}
 
 	@DeleteMapping(value = "/{id}")

@@ -14,6 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import javax.management.ServiceNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,109 +26,59 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import com.dslearn.dscatalog.dto.ProdutoDTO;
-import com.dslearn.dscatalog.services.ProdutoService;
+import com.dslearn.dscatalog.dto.ProductDTO;
+import com.dslearn.dscatalog.services.ProductService;
 import com.dslearn.dscatalog.services.exceptions.DatabaseException;
-import com.dslearn.dscatalog.services.exceptions.ServiceNotfoundException;
 import com.dslearn.dscatalog.tests.Factory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest(ProdutoController.class)
+@WebMvcTest(ProductController.class)
 public class ProductControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
 
+	@MockBean
+	private ProductService service;
+
 	@Autowired
 	private ObjectMapper objectMapper;
-
-	@MockBean
-	private ProdutoService service;
 
 	private Long existingId;
 	private Long nonExistingId;
 	private Long dependentId;
-
-	private ProdutoDTO produtoDTO;
-	private PageImpl<ProdutoDTO> page;
+	private ProductDTO productDTO;
+	private PageImpl<ProductDTO> page;
 
 	@BeforeEach
 	void setUp() throws Exception {
 
 		existingId = 1L;
-		nonExistingId = 300L;
+		nonExistingId = 2L;
 		dependentId = 3L;
 
-		produtoDTO = Factory.createProductDTO();
-		page = new PageImpl<>(List.of(produtoDTO));
+		productDTO = Factory.createProductDTO();
+		page = new PageImpl<>(List.of(productDTO));
 
 		when(service.findAllPaged(any())).thenReturn(page);
 
-		when(service.findById(existingId)).thenReturn(produtoDTO);
-		when(service.findById(nonExistingId)).thenThrow(ServiceNotfoundException.class);
+		when(service.findById(existingId)).thenReturn(productDTO);
+		when(service.findById(nonExistingId)).thenThrow(ServiceNotFoundException.class);
 
-		when(service.update(existingId, eq(any()))).thenReturn(produtoDTO);
-		when(service.update(nonExistingId, eq(any()))).thenThrow(ServiceNotfoundException.class);
+		when(service.insert(any())).thenReturn(productDTO);
+
+		when(service.update(eq(existingId), any())).thenReturn(productDTO);
+		when(service.update(eq(nonExistingId), any())).thenThrow(ServiceNotFoundException.class);
 
 		doNothing().when(service).delete(existingId);
-		doThrow(ServiceNotfoundException.class).when(service).delete(nonExistingId);
+		doThrow(ServiceNotFoundException.class).when(service).delete(nonExistingId);
 		doThrow(DatabaseException.class).when(service).delete(dependentId);
-
-		when(service.insert(any())).thenReturn(produtoDTO);
-	}
-
-	@Test
-	public void findAllShouldReturnPage() throws Exception {
-
-		ResultActions result = mockMvc.perform(get("/produtos").accept(MediaType.APPLICATION_JSON));
-
-		result.andExpect(status().isOk());
-	}
-
-	@Test
-	public void findByIdShouldReturnProductWhenIdExists() throws Exception {
-
-		ResultActions result = mockMvc.perform(get("/produtos/{id}", existingId).accept(MediaType.APPLICATION_JSON));
-
-		result.andExpect(status().isOk());
-		result.andExpect(jsonPath("$.id").exists());
-	}
-
-	@Test
-	public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
-
-		ResultActions result = mockMvc.perform(get("/produtos/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
-
-		result.andExpect(status().isNotFound());
-	}
-
-	@Test
-	public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
-
-		String jsonBody = objectMapper.writeValueAsString(produtoDTO);
-
-		ResultActions result = mockMvc.perform(put("/produtos/{id}", nonExistingId).content(jsonBody)
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-
-		result.andExpect(status().isNotFound());
-	}
-
-	@Test
-	public void updateShouldReturnProductDTOWhenIdExists() throws Exception {
-
-		String jsonBody = objectMapper.writeValueAsString(produtoDTO);
-
-		ResultActions result = mockMvc.perform(put("/produtos/{id}", existingId).content(jsonBody)
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-
-		result.andExpect(status().isOk());
-		result.andExpect(jsonPath("$.Id").exists());
 	}
 
 	@Test
 	public void deleteShouldReturnNoContentWhenIdExists() throws Exception {
 
-		ResultActions result = mockMvc.perform(delete("/produtos/{id}", existingId).accept(MediaType.APPLICATION_JSON));
+		ResultActions result = mockMvc.perform(delete("/products/{id}", existingId).accept(MediaType.APPLICATION_JSON));
 
 		result.andExpect(status().isNoContent());
 	}
@@ -135,7 +87,7 @@ public class ProductControllerTest {
 	public void deleteShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
 
 		ResultActions result = mockMvc
-				.perform(delete("/produtos/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
+				.perform(delete("/products/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
 
 		result.andExpect(status().isNotFound());
 	}
@@ -143,13 +95,66 @@ public class ProductControllerTest {
 	@Test
 	public void insertShouldReturnProductDTOCreated() throws Exception {
 
-		String jsonBody = objectMapper.writeValueAsString(produtoDTO);
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
 
-		ResultActions result = mockMvc.perform(post("/produtos").content(jsonBody)
+		ResultActions result = mockMvc.perform(post("/products").content(jsonBody)
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
 		result.andExpect(status().isCreated());
 		result.andExpect(jsonPath("$.id").exists());
+		result.andExpect(jsonPath("$.name").exists());
+		result.andExpect(jsonPath("$.description").exists());
 	}
 
+	@Test
+	public void updateShouldReturnProductDTOWhenIdExists() throws Exception {
+
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+		ResultActions result = mockMvc.perform(put("/products/{id}", existingId).content(jsonBody)
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isOk());
+		result.andExpect(jsonPath("$.id").exists());
+		result.andExpect(jsonPath("$.name").exists());
+		result.andExpect(jsonPath("$.description").exists());
+	}
+
+	@Test
+	public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+		ResultActions result = mockMvc.perform(put("/products/{id}", nonExistingId).content(jsonBody)
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void findAllShouldReturnPage() throws Exception {
+
+		ResultActions result = mockMvc.perform(get("/products").accept(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isOk());
+	}
+
+	@Test
+	public void findByIdShouldReturnProductWhenIdExists() throws Exception {
+
+		ResultActions result = mockMvc.perform(get("/products/{id}", existingId).accept(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isOk());
+		result.andExpect(jsonPath("$.id").exists());
+		result.andExpect(jsonPath("$.name").exists());
+		result.andExpect(jsonPath("$.description").exists());
+	}
+
+	@Test
+	public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+
+		ResultActions result = mockMvc.perform(get("/products/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isNotFound());
+	}
 }
