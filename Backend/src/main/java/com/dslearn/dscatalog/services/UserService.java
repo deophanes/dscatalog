@@ -10,6 +10,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +27,11 @@ import com.dslearn.dscatalog.repositories.RoleRepository;
 import com.dslearn.dscatalog.repositories.UserRepository;
 import com.dslearn.dscatalog.services.exceptions.DatabaseException;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
@@ -91,6 +97,18 @@ public class UserService {
 			Role role = roleRepository.getById(roleDto.getId());
 			entity.getRoles().add(role);
 		}
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		
+		User user = repository.findByEmail(username);
+		if (user == null) {
+			log.error("User not found: " + username);
+			throw new UsernameNotFoundException("Email not found");
+		}	
+		log.info("User found: " + username);
+		return user;
 	}
 
 }
